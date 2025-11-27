@@ -6,6 +6,8 @@
         <v-main>
 
             <v-container>
+                <div id = background />
+                
                 <v-card class = 'text-center glasss ma-3'>
                     <template #title>
                         Sphinx
@@ -80,7 +82,7 @@
         </v-main>
     </v-app>
 
-    <site_footer></site_footer>
+    <!-- <site_footer></site_footer> -->
 </template>
 
 <script>
@@ -94,6 +96,8 @@ import site_footer from '@/footer.vue'
 
 import { useDisplay } from 'vuetify'
 import { templateRef } from 'vuetify/lib/util'
+
+import { animate, stagger, onScroll, text } from 'animejs';
 
 export default {
     name: 'App',
@@ -115,6 +119,25 @@ export default {
         setTimeout(() => {
             this.loading = false;
         }, 100);
+        animate('body', {
+            // filter: 'blur(50px)',
+            autoplay: onScroll({
+                enter: 'top top',
+                leave: 'bottom bottom',
+                sync: true,
+                onUpdate: (e) => {
+                    // console.log(`linear-gradient(${Math.floor(720 * e.progress)}deg, orange, purple)`);
+                    $('.rainbow').css({
+                        background: `linear-gradient(${Math.floor(360 * e.progress)}deg, orange, purple)`,
+                        'background-clip': 'text'
+                    })
+                    $('#background').css({
+                        background: `linear-gradient(${45 + Math.floor(360 * e.progress)}deg, orange, pink)`,
+                        filter: `blur(${Math.floor(500 * e.progress)}px)`
+                    })
+                }
+            })
+        })
     },
     methods: {
     }
@@ -132,5 +155,14 @@ export default {
 }
 .big {
     font-size: xx-large;
+}
+#background {
+    background: linear-gradient(45deg, orange, pink);
+    z-index: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
 }
 </style>
