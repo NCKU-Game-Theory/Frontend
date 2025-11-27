@@ -7,6 +7,16 @@
 
             <v-container>
                 <div id = background />
+
+                <v-row>
+                    <v-col>
+                        <v-card title = 'Server URL' subtitle = 'Devs only' variant = tonal class = ma-3>
+                            <template #text>
+                                <v-text-field v-model = url @blur = init />
+                            </template>
+                        </v-card>
+                    </v-col>
+                </v-row>
                 
                 <v-card class = 'text-center glasss ma-3'>
                     <template #title>
@@ -107,7 +117,8 @@ export default {
             history: [
                 {user: 'AI', time: '3:13 A.M.', text: 'ouob'},
                 {user: 'user', time: '8:14 P.M.', text: 'ouob'},
-            ]
+            ],
+            url: 'http://127.0.0.1:5000'
         }
     },
     components: {
@@ -116,9 +127,6 @@ export default {
     },
     mounted() {
         M.AutoInit();
-        setTimeout(() => {
-            this.loading = false;
-        }, 100);
         animate('body', {
             // filter: 'blur(50px)',
             autoplay: onScroll({
@@ -138,8 +146,21 @@ export default {
                 }
             })
         })
+        this.init();
     },
     methods: {
+        init() {
+            $.ajax({
+                url: this.url + '/beat',
+                type: 'POST',
+                timeout: 3000,
+                data: {}
+            }).done((response) => {
+                M.toast({html: JSON.stringify(response), classes: 'rounded amber'});
+            }).fail(() => {
+                M.toast({html: 'Server down', classes: 'red rounded'})
+            }).always(() => this.loading = false)
+        }
     }
 }
 </script>
