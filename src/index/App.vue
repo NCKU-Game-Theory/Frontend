@@ -37,7 +37,7 @@
                     <template #text>
                         <v-card variant = tonal>
                             <template #text>
-                                <v-textarea clearable label = '規則...' bg-color = transparent clear-icon = 'fa-solid fa-close' />
+                                <v-textarea clearable label = '規則...' bg-color = transparent clear-icon = 'fa-solid fa-close' v-model = rules />
                             </template>
                         </v-card>
                     </template>
@@ -51,6 +51,7 @@
                                     class = text-center
                                     :color = 'isHovering ? `primary` : undefined'
                                     :variant = 'isHovering ? undefined : `tonal`'
+                                    @click = 'submit_rules'
                                     v-ripple
                                 />
                             </template>
@@ -118,6 +119,7 @@ export default {
                 {user: 'AI', time: '3:13 A.M.', text: 'ouob'},
                 {user: 'user', time: '8:14 P.M.', text: 'ouob'},
             ],
+            rules: '',
             url: 'http://127.0.0.1:5000'
         }
     },
@@ -160,6 +162,27 @@ export default {
             }).fail(() => {
                 M.toast({html: 'Server down', classes: 'red rounded'})
             }).always(() => this.loading = false)
+        },
+        submit_rules() {
+            $.ajax({
+                url: this.url + '/model/ask_llm',
+                type: 'POST',
+                data: {
+                    data: this.rules
+                },
+                timeout: 300000
+            }).done((response) => {
+                console.log(response);
+                if(this.check_response(response)) return;
+                this.rules = response.data;
+            })
+        },
+        check_response(response) {
+            if(!response['ok']) {
+                M.toast({html: 'ERROR Found: ' + response['error'], classes: 'red rounded'});
+                return 1;
+            }
+            return 0;
         }
     }
 }
