@@ -61,8 +61,21 @@
 
                 <v-card title = 資訊 class = 'ma-3 text-center'>
                     <v-row>
-                        <v-col><v-card variant = tonal title = 信心 /></v-col>
-                        <v-col><v-card variant = tonal title = 分類 /></v-col>
+                        <v-col><v-card variant = tonal title = 信心>
+                            <template #text>
+                                <b class = 'big rainbow'> {{ game.faith }} </b>
+                            </template>
+                        </v-card></v-col>
+                        <v-col><v-card variant = tonal title = 次數>
+                            <template #text>
+                                <b class = 'big rainbow'> {{ game.trial }} </b>
+                            </template>
+                        </v-card></v-col>
+                        <v-col><v-card variant = tonal title = 分類>
+                            <template #text>
+                                <b class = 'big rainbow'> {{ game.category }} </b>
+                            </template>
+                        </v-card></v-col>
                     </v-row>
                 </v-card>
 
@@ -120,6 +133,11 @@ export default {
                 {user: 'user', time: '8:14 P.M.', text: 'ouob'},
             ],
             rules: '',
+            game: {
+                faith: '',
+                trial: '',
+                category: ''
+            },
             url: 'http://127.0.0.1:5000'
         }
     },
@@ -164,17 +182,23 @@ export default {
             }).always(() => this.loading = false)
         },
         submit_rules() {
+            if(this.rules == '') {
+                M.toast({html: '請填入規則', classes: 'red rounded'});
+                return;
+            }
             $.ajax({
-                url: this.url + '/model/ask_llm',
+                url: this.url + '/game/get_category',
                 type: 'POST',
                 data: {
-                    data: this.rules
+                    rules: this.rules
                 },
                 timeout: 300000
             }).done((response) => {
                 console.log(response);
                 if(this.check_response(response)) return;
-                this.rules = response.data;
+                this.game.category = response.data.category;
+                this.game.trial = response.data.trial + 1;
+                this.game.faith = response.data.faith;
             })
         },
         check_response(response) {
