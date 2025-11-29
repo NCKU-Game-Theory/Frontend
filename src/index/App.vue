@@ -59,8 +59,11 @@
                     </template>
                 </v-card>
 
-                <v-card title = 資訊 class = 'ma-3 text-center'>
-                    <v-row>
+                <v-card title = 資訊 class = 'ma-3 text-center glass' id = info>
+                    <div id = 'test' class = 'align-content-center' v-if = load.info>
+                        <v-progress-circular indeterminate />
+                    </div>
+                    <v-row :class = 'load.info ? `loading` : undefined'>
                         <v-col><v-card variant = tonal title = 信心>
                             <template #text>
                                 <b class = 'big rainbow'> {{ game.faith }} </b>
@@ -68,7 +71,7 @@
                         </v-card></v-col>
                         <v-col><v-card variant = tonal title = 次數>
                             <template #text>
-                                <b class = 'big rainbow'> {{ game.trial }} </b>
+                                <b class = 'big rainbow'> {{ game.trial + 1 }} </b>
                             </template>
                         </v-card></v-col>
                         <v-col><v-card variant = tonal title = 分類>
@@ -79,8 +82,13 @@
                     </v-row>
                 </v-card>
 
-                <v-card title = 歷史對局 class = 'ma-3'>
-                    
+                <v-card title = 最佳策略 class = 'ma-3' id = strategy>
+                    <div id = 'test' class = 'align-content-center text-right' v-if = load.strategy>
+                        <v-progress-circular indeterminate class = ma-5 />
+                    </div>
+                    <div :class = 'load.strategy ? `loading` : undefined'>
+                        <b> {{ game.strategy }} </b>
+                    </div>
                 </v-card>
 
                 <v-card class = 'ma-3 text-center'>
@@ -118,7 +126,7 @@ import title_nav from '@/title.vue'
 import page_loader from '@/loader.vue'
 import site_footer from '@/footer.vue'
 
-import { useDisplay } from 'vuetify'
+import { useDisplay, useGoTo } from 'vuetify'
 import { templateRef } from 'vuetify/lib/util'
 
 import { animate, stagger, onScroll, text } from 'animejs';
@@ -136,8 +144,14 @@ export default {
             game: {
                 faith: '',
                 trial: '',
-                category: ''
+                category: '',
+                strategy: '',
             },
+            load: {
+                info: false,
+                strategy: false
+            },
+            goto: useGoTo(),
             url: 'http://127.0.0.1:5000'
         }
     },
@@ -167,6 +181,14 @@ export default {
             })
         })
         this.init();
+        animate('.loading', {
+            filter: [
+                {to: '0px', duration: 1000},
+                {to: '50px', duration: 1000}
+            ],
+            loop: true,
+            ease: 'inOutCirc'
+        })
     },
     methods: {
         init() {
@@ -186,6 +208,7 @@ export default {
                 M.toast({html: '請填入規則', classes: 'red rounded'});
                 return;
             }
+            this.load.info = true;
             $.ajax({
                 url: this.url + '/game/get_category',
                 type: 'POST',
@@ -196,10 +219,10 @@ export default {
             }).done((response) => {
                 console.log(response);
                 if(this.check_response(response)) return;
-                this.game.category = response.data.category;
-                this.game.trial = response.data.trial + 1;
-                this.game.faith = response.data.faith;
-            })
+                this.game = response.data;
+                this.get_strategy();
+                this.goto('#info');
+            }).always(() => this.load.info = false)
         },
         check_response(response) {
             if(!response['ok']) {
@@ -207,6 +230,21 @@ export default {
                 return 1;
             }
             return 0;
+        },
+        get_strategy() {
+            console.log('1');
+            this.load.strategy = true;
+            $.ajax({
+                type: 'POST',
+                url: this.url + '/game/get_strategy',
+                data: {
+                    rules: this.rules
+                },
+                timeout: 5 * 60 * 1000
+            }).done((response) => {
+                if(this.check_response(response)) return;
+                this.game.strategy = response.data;
+            }).always(() => this.load.strategy = false)
         }
     }
 }
@@ -232,5 +270,15 @@ export default {
     left: 0;
     width: 100vw;
     height: 100vh;
+}
+.loading {
+    filter: blur(50px);
+}
+#test {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
 }
 </style>
