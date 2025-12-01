@@ -100,6 +100,14 @@ export default {
         })
     },
     methods: {
+        shuffleArray(array) {
+            for (var i = array.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var temp = array[i];
+                array[i] = array[j];
+                array[j] = temp;
+            }
+        },
         init() {
             $.ajax({
                 url: this.url + '/beat',
@@ -114,6 +122,7 @@ export default {
 
                         this.mean = response.data.mean;
                         this.f = response.data.ls;
+                        this.shuffleArray(this.f);
                     })
                 }, 3000);
             }).fail(() => {
