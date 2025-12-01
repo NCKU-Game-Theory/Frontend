@@ -122,7 +122,7 @@ export default {
 
                         this.mean = response.data.mean;
                         this.f = response.data.ls;
-                        this.shuffleArray(this.f);
+                        if(this.blur) this.shuffleArray(this.f);
                     })
                 }, 3000);
             }).fail(() => {
