@@ -4,5 +4,6 @@ module.exports = defineConfig({
   productionSourceMap: false,
   pages: {
     index: 'src/index/main.js',
+    number: 'src/number/main.js',
   }
 })
