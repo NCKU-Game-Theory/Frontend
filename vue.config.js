@@ -5,5 +5,6 @@ module.exports = defineConfig({
   pages: {
     index: 'src/index/main.js',
     number: 'src/number/main.js',
+    ranking: 'src/ranking/main.js'
   }
 })
