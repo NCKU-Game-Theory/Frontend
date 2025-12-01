@@ -21,7 +21,15 @@
                     </template>
                 </v-card>
 
-                <v-card :title = i[0] :subtitle = '`第 ${j + 1} 名`' :text = '`誤差 ${i[2]}`' v-for = 'i, j in f' :key = 'i' />
+                <v-row v-for = 'i, j in f' :key = 'i'>
+                    <v-col cols = 10>
+                        <v-card :title = i[0] :subtitle = '`第 ${j + 1} 名`' :text = '`誤差 ${i[2]}`' class = 'glass ma-3' />
+                    </v-col>
+                    <v-cols cols = 2>
+                        <v-card :title = i[1] class = 'ma-3' />
+                    </v-cols>
+                </v-row>
+
             </v-container>
 
         </v-main>
