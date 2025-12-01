@@ -11,22 +11,23 @@
                     </template>
                 </v-card>
             </v-container>
-
+            
             <v-container v-else>
                 <div id = background class = ma-3 />
+                <v-btn text = 開版 @click = 'blur = false' />
 
                 <v-card title = '現在平均值' class = ma-3>
                     <template #text>
-                        <b class = big> {{ mean }} </b>
+                        <b :class = 'blur ? `blur big` : `big`'> {{ mean }} </b>
                     </template>
                 </v-card>
 
                 <v-row v-for = 'i, j in f' :key = 'i'>
                     <v-col cols = 10>
-                        <v-card :title = i[0] :subtitle = '`第 ${j + 1} 名`' :text = '`誤差 ${i[2]}`' class = 'glass ma-3' />
+                        <v-card :title = i[0] :subtitle = '`第 ${j + 1} 名`' :text = 'blur ? `誤差 ??? ` : `誤差 ${i[2]}`' class = 'glass ma-3' />
                     </v-col>
                     <v-cols cols = 2>
-                        <v-card :title = i[1] class = 'ma-3' />
+                        <v-card :title = i[1] class = 'ma-3' :class = 'blur ? `blur` : undefined' />
                     </v-cols>
                 </v-row>
 
@@ -59,7 +60,8 @@ export default {
             loading: true,
             f: [],
             mean: -1,
-            url: 'https://api.ysh.xx.kg/'
+            url: 'https://api.ysh.xx.kg/',
+            blur: true
         }
     },
     components: {
@@ -172,5 +174,8 @@ export default {
     left: 0px;
     width: 100%;
     height: 100%;
+}
+.blur {
+    filter: blur(27px);
 }
 </style>
