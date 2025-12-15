@@ -109,6 +109,14 @@
                         </v-row>
                     </template>
                 </v-card>
+
+                <v-hover>
+                    <template #default = '{isHovering, props}'>
+                        <a href = 'https://github.com/NCKU-Game-Theory'>
+                            <v-card class = ma-3 title = 'GitHub Repository' v-bind = props :color = 'isHovering ? `primary` : `cyan`' :variant = 'isHovering ? undefined : `tonal`' target = '_blank' />
+                        </a>
+                    </template>
+                </v-hover>
             </v-container>
 
         </v-main>
