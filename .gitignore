@@ -1,0 +1,8 @@
+node_modules
+.vscode
+.ruler
+env.d.ts
+AGENTS.md
+
+t.*
+*.info
