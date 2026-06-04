@@ -1,81 +1,56 @@
-# game-theory-frontend
+# Sphinx
 
-Scaffolded with Vuetify CLI.
+> The Frontend of the project ***T-RAG***
 
-## ❗️ Documentation
+## Description
 
-- Primary docs: https://vuetifyjs.com/
-- Getting started guide: https://vuetifyjs.com/en/getting-started/installation/
-- Community support: https://community.vuetifyjs.com/
-- Issue tracker: https://issues.vuetifyjs.com/
+This project act as the frontend of the ***T-RAG***, it cares and only cares everything related to ***user experience / user interface***.
 
-## 🧱 Stack
+### Framework
 
-- Framework: Vue 3 + Vite
-- UI Library: Vuetify
-- Language: TypeScript
-- Package manager: npm
+This project is written in:
 
-## 🧭 Start Here
+ - Vue
+ - Vuetify
+ - Anime.js
+ - Material Design Icons
 
-- Main entry: `src/main.ts`
-- Main app component: `src/App.vue`
-- Main styles: `src/styles/`
-- Plugin setup: `src/plugins/`
+## Usage
 
-## 📁 Project Structure
+### Project Manager
 
-- `src/main.ts` — application entry point
-- `src/App.vue` — root component
-- `src/components/` — reusable Vue components
-- `src/plugins/` — plugin registration and setup
-- `src/styles/` — global styles and theme settings
-- `public/` — static public files
+This project is written in `node.js` framework.
 
-## ✨ Enabled Features
+Hence, we can install all the dependencies using the following command:
 
-- ESLint
-- Vuetify MCP
-- Vue Router
-
-## 💿 Install
-
-Use your selected package manager (npm) to install dependencies:
+> Make sure you had the `node.js` installed and `npm` added to system PATH.
 
 ```bash
-npm install
+npm i
 ```
 
-## 🚀 Quick Start
+### Preview
+
+There comes three useful commands in ***Vite***, the first one is to create a preview server with ***hot-reload***, this is quite useful for debugging or designing.
+
+The following command achieve this.
 
 ```bash
-npm install
 npm run dev
 ```
 
-## 🏗️ Build
+### Build
+
+Due to out frontend project obey the rules of ***Frontend-Backend Seperated Architecture***, all the pages in this project should be static.
+
+Therefore, we can generate the static ***HTML*** files using the following command:
 
 ```bash
 npm run build
 ```
 
-## 🧪 Available Scripts
+And to hold a temporary server showing those files, you can use the following command:
 
-- `npm run dev`
-- `npm run build`
-- `npm run preview`
-- `npm run build-only`
-- `npm run type-check`
-- `npm run lint`
-- `npm run lint:fix`
-- `npm run mcp`
-- `npm run mcp:revert`
-
-## 💪 Support Vuetify Development
-
-This project uses Vuetify - an MIT licensed Open Source project. We are glad to welcome contributors and any support for ongoing development:
-
-- Contribute to Vuetify and ecosystem projects: https://github.com/vuetifyjs
-- Request enterprise support: https://support.vuetifyjs.com/
-- Sponsor on GitHub: https://github.com/sponsors/vuetifyjs
-- Support on Open Collective: https://opencollective.com/vuetify
+```bash
+npm run preview
+```
