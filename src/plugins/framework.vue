@@ -72,4 +72,14 @@
     provide('qerror', qerror);
     provide('kick', kick);
     provide('qinfo', qinfo);
+
+    // localStorage API
+    const save: Function = (name: string, x: any) => {
+        localStorage.setItem(name, x);
+    }
+    const get: Function = (name: string) => {
+        return localStorage.getItem(name);
+    }
+    provide('save', save);
+    provide('get', get);
 </script>
