@@ -23,7 +23,15 @@
                 <v-row>
                     <v-col><cartn @click = 'model.dialog = true' title = 'Setup Rules' icon = mdi-ruler /></v-col>
                 </v-row>
-                <v-text-field v-model = input label = 123 />
+
+                <v-row>
+                    <chat v-model = history />
+                </v-row>
+
+                <v-row>
+                    <v-col cols = 12 md = 11><v-text-field v-model = input label = 'Make some conversation...' /></v-col>
+                    <v-col cols = 12 md = 1><v-btn icon = mdi-send @click = submit /></v-col>
+                </v-row>
             </v-container>
 
         </v-main>
@@ -40,7 +48,9 @@ import M from 'materialize-css'
 import { animate, stagger, onScroll, text } from 'animejs';
 import { useGoTo } from 'vuetify';
 import { inject, onMounted, ref, type Ref } from 'vue';
+
 import Cartn from '@/components/cartn.vue';
+import Chat from '@/components/chat.vue';
 
 const error: Function = inject('error')!;
 const info: Function = inject('info')!;
@@ -56,6 +66,14 @@ const loading: boolean = inject('loading')!;
 const input = ref('');
 const rule = ref('');
 
+export interface hs {
+    name: string,
+    time: string | null,
+    text: string
+}
+
+const history: Ref<hs[]> = ref([]);
+
 onMounted(() => {
     rule.value = get('rule') || '';
 })
@@ -69,6 +87,20 @@ const blur: Function = (target: string, time: number = 1000) => {
         scale: 1.5,
         duration: time
     });
+}
+
+const fake: Function = () => {
+    return {
+        text: input.value,
+        name: '123',
+        time: '12321'
+    };
+}
+
+const submit: Function = () => {
+    info('ouob');
+    history.value.push(fake());
+    input.value = '';
 }
 
 </script>
