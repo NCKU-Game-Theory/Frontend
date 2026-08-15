@@ -3,7 +3,7 @@
         <template #default = '{isHovering, props}'>
             <v-card class = 'ma-3 text-center'
             v-bind = props
-            :color = 'isHovering ? color : undefined'
+            :color = 'isHovering || fixed ? color : undefined'
             :text = text
             :title = title
             :subtitle = subtitle
@@ -27,5 +27,9 @@
         title: String,
         subtitle: String,
         icon: String,
+        fixed: {
+            type: Boolean,
+            default: false
+        }
     })
 </script>
