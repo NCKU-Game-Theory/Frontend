@@ -34,12 +34,21 @@
                 </template>
             </v-dialog>
 
-            <v-container class = 'align-content-center wrapper'>
-                <v-row class = 'animate'>
+            <v-container>
+                <v-row>
                     <v-col cols = 12 md = 4><cartn @click = 'popup.rule = true' title = 'Setup Rules' icon = mdi-ruler :subtitle = 'rule == `` ? `Rule not set` : `Rule set`' /></v-col>
                     <v-col cols = 12 md = 4><cartn @click = 'popup.model = true' title = 'Select Model' icon = mdi-robot :subtitle = 'model ? model : `No model`' /></v-col>
                     <v-col cols = 12 md = 4><cartn @click = 'memory = !memory' title = 'Memory' icon = mdi-brain :fixed = 'memory' subtitle = 'Toggle memory' /></v-col>
-                    <v-col cols = 12 :class = 'ok ? undefined : `disabled`'><cartn @click = 'init()' title = 'Start' icon = mdi-send subtitle = 'Start a new session' /></v-col>
+                    <v-col cols = 12><cartn @click = 'init' title = 'Start' icon = mdi-send /></v-col>
+                </v-row>
+
+                <v-row>
+                    <chat v-model = history />
+                </v-row>
+
+                <v-row :class = 'ok ? undefined : `disabled`' class = animate>
+                    <v-col cols = 12 md = 11><v-text-field v-model = input variant = outlined label = 'Make some conversation...' /></v-col>
+                    <v-col cols = 12 md = 1><v-btn icon = mdi-send @click = submit /></v-col>
                 </v-row>
             </v-container>
 
@@ -75,6 +84,7 @@ const popup = ref({
 });
 
 const loading: boolean = inject('loading')!;
+const input = ref('');
 const rule = ref('');
 
 export interface hs {
@@ -82,6 +92,8 @@ export interface hs {
     time: string | null,
     text: string
 }
+
+const history: Ref<hs[]> = ref([]);
 
 onMounted(() => {
     rule.value = get('rule') || '';
@@ -98,27 +110,41 @@ const blur: Function = (target: string, time: number = 1000) => {
     });
 }
 
+const fake: Function = () => {
+    return {
+        text: input.value,
+        name: '123',
+        time: '12321'
+    };
+}
+
+const submit: Function = () => {
+    info('ouob');
+    history.value.push(fake());
+    input.value = '';
+}
+
 const models: Ref<string[]> = ref(['gemma3:12b', 'gemma3:4b']);
 const model: Ref<string | null> = ref(null);
 const memory: Ref<boolean> = ref(false);
 
-const init: Function = () => {
-    if(!ok.value) {
-        error('Parameter not set');
-        return;
-    }
-}
-
 </script>
 
 <style>
+/* .blur {
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    top: 0px;
+    left: 0px;
+    background-color: rgba(255, 255, 255, .4);
+    backdrop-filter: blur(10px);
+    z-index: -1000;
+} */
 .disabled {
     filter: blur(10px);
 }
 .animate {
     transition: all .7s;
-}
-.wrapper {
-    height: 100vh;
 }
 </style>
