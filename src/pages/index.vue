@@ -19,7 +19,7 @@
                     </v-container>
                 </template>
             </v-dialog>
-            <v-dialog v-model = popup.model id = rule>
+            <v-dialog v-model = popup.model id = model>
                 <template #default = '{isActive}'>
                     <v-container>
                         <div class = blur />
@@ -28,7 +28,7 @@
                                 <v-chip v-for = 'i, j in models' :key = j class = ma-3 :variant = 'model == i ? undefined : `outlined`' @click = 'model = i; info(model)'> {{ i }} </v-chip>
                             </div>
                             <v-divider />
-                            <cartn @click = 'isActive.value = false; blur(`#model`)' title = 'Apply' :text = 'model ? `You have selected ${model} as your model` : `You have not chosen any model`'></cartn>
+                            <cartn @click = 'isActive.value = false; blur(`#model`)' title = 'Apply' :text = 'model ? `You have selected ${model} as your model` : `You have not chosen any model`' icon = mdi-check-circle></cartn>
                         </v-card>
                     </v-container>
                 </template>
@@ -36,19 +36,22 @@
 
             <v-container>
                 <v-row>
-                    <v-col><cartn @click = 'popup.rule = true' title = 'Setup Rules' icon = mdi-ruler /></v-col>
-                    <v-col><cartn @click = 'popup.model = true' title = 'Select Model' icon = mdi-robot :subtitle = 'model ? model : undefined' /></v-col>
-                    <v-col><cartn @click = 'memory = !memory' title = 'Memory' icon = mdi-brain :fixed = 'memory' /></v-col>
+                    <v-col><cartn @click = 'popup.rule = true' title = 'Setup Rules' icon = mdi-ruler :subtitle = 'rule == `` ? `Rule not set` : `Rule set`' /></v-col>
+                    <v-col><cartn @click = 'popup.model = true' title = 'Select Model' icon = mdi-robot :subtitle = 'model ? model : `No model`' /></v-col>
+                    <v-col><cartn @click = 'memory = !memory' title = 'Memory' icon = mdi-brain :fixed = 'memory' subtitle = 'Toggle memory' /></v-col>
                 </v-row>
 
                 <v-row>
                     <chat v-model = history />
                 </v-row>
 
-                <v-row>
-                    <v-col cols = 12 md = 11><v-text-field v-model = input variant = outlined label = 'Make some conversation...' /></v-col>
-                    <v-col cols = 12 md = 1><v-btn icon = mdi-send @click = submit /></v-col>
-                </v-row>
+                <div id = sender>
+                    <div id = t />
+                    <v-row :class = 'ok ? undefined : `disabled`' class = animate>
+                        <v-col cols = 12 md = 11><v-text-field v-model = input variant = outlined label = 'Make some conversation...' /></v-col>
+                        <v-col cols = 12 md = 1><v-btn icon = mdi-send @click = submit /></v-col>
+                    </v-row>
+                </div>
             </v-container>
 
         </v-main>
@@ -64,7 +67,7 @@ import M from 'materialize-css'
 
 import { animate, stagger, onScroll, text } from 'animejs';
 import { useGoTo } from 'vuetify';
-import { inject, onMounted, ref, type Ref } from 'vue';
+import { computed, inject, onMounted, ref, type Ref } from 'vue';
 
 import Cartn from '@/components/cartn.vue';
 import Chat from '@/components/chat.vue';
@@ -74,6 +77,8 @@ const info: Function = inject('info')!;
 
 const save: Function = inject('save')!;
 const get: Function = inject('get')!;
+
+const ok = computed(() => ((rule.value != '') && (model.value !== null)));
 
 const popup = ref({
     rule: false,
@@ -138,4 +143,10 @@ const memory: Ref<boolean> = ref(false);
     backdrop-filter: blur(10px);
     z-index: -1000;
 } */
+.disabled {
+    filter: blur(10px);
+}
+.animate {
+    transition: all .7s;
+}
 </style>
