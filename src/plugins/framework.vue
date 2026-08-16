@@ -82,4 +82,22 @@
     }
     provide('save', save);
     provide('get', get);
+
+    // Requests Parser
+    const check = (response: any, err: boolean = false) => {
+        if(err) {
+            if(response.responseText != null) error(JSON.parse(response.responseText)?.error);
+            else error(`Request Failed`);
+            return;
+        }
+        if(!('ok' in response)) return false;
+        if(!response.ok) return false;
+
+        return response.data;
+    }
+    provide('check', check);
+
+    // Constants
+    const url: Function = (x: string) => `http://localhost:12345/${x}`;
+    provide('url', url);
 </script>

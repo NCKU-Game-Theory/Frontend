@@ -67,6 +67,9 @@ const info: Function = inject('info')!;
 const save: Function = inject('save')!;
 const get: Function = inject('get')!;
 
+const url: Function = inject('url')!;
+const check: Function = inject('check')!;
+
 const ok = computed(() => ((rule.value != '') && (model.value !== null)));
 
 const popup = ref({
@@ -74,7 +77,7 @@ const popup = ref({
     model: false
 });
 
-const loading: boolean = inject('loading')!;
+const loading: Ref<boolean> = inject('loading')!;
 const rule = ref('');
 
 export interface hs {
@@ -102,11 +105,59 @@ const models: Ref<string[]> = ref(['gemma3:12b', 'gemma3:4b']);
 const model: Ref<string | null> = ref(null);
 const memory: Ref<boolean> = ref(false);
 
+export interface session {
+    token: string,
+    rule: string,
+    title: string | null
+}
+
+var sessions: session[] = [];
+sessions = JSON.parse(get('sessions')) || [];
+
+const set_rule: Function = (token: string, rule: string, model: string) => {
+    info('set rules');
+    loading.value = true;
+    $.ajax({
+        url: url('chat/rule'),
+        timeout: 3000,
+        method: 'POST',
+        data: {
+            token: token,
+            rule: rule
+        }
+    }).done((response) => {
+        const res = check(response);
+        info(`Got Response from model: ${res.response}`);
+
+        sessions.push({
+            token, rule, title: res.response
+        })
+        save('sessions', JSON.stringify(sessions));
+    }).fail((err) => {
+        check(err, true);
+    }).always(() => {
+        loading.value = false;
+    })
+}
+
 const init: Function = () => {
     if(!ok.value) {
         error('Parameter not set');
         return;
     }
+    $.ajax({
+        url: url('token/init'),
+        timeout: 300000,
+        method: 'GET'
+    }).done((response) => {
+        const res = check(response);
+        if(!res) error(`Failed, error = ${response.error}`);
+        info(`Got token ${res}`);
+        const token: string = res;
+        set_rule(token, rule.value, model.value);
+    }).fail((err) => {
+        check(err, true);
+    })
 }
 
 </script>
