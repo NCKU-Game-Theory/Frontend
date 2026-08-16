@@ -52,6 +52,7 @@ const submit = () => {
         role: 'user',
         content: input.value
     })
+    input.value = '';
     $.ajax({
         url: url('chat/ask'),
         method: 'POST',

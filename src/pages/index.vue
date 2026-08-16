@@ -34,8 +34,8 @@
                 </template>
             </v-dialog>
 
-            <v-row>
-                <v-col cols = 12 md = 3>
+            <v-row justify = center>
+                <v-col cols = 12 md = 3 v-if = 'sessions.length != 0'>
                     <v-row align = center>
                         <v-col>
                             <cartn
@@ -55,6 +55,9 @@
                 </v-col>
                 <v-col cols = 12 md = 6 lg = 9 class = 'align-content-center wrapper'>
                     <v-row class = 'animate'>
+                        <v-col cols = 12 v-if = '!pointer'>
+                            <v-card class = text-center variant = plain title = 'Welcome to HashRAG' />
+                        </v-col>
                         <v-col cols = 12 md = 4><cartn @click = 'popup.rule = true' title = 'Setup Rules' icon = mdi-ruler :subtitle = 'rule == `` ? `Rule not set` : `Rule set`' /></v-col>
                         <v-col cols = 12 md = 4><cartn @click = 'popup.model = true' title = 'Select Model' icon = mdi-robot :subtitle = 'model ? model : `No model`' /></v-col>
                         <v-col cols = 12 md = 4><cartn @click = 'memory = !memory' title = 'Memory' icon = mdi-brain :fixed = 'memory' subtitle = 'Toggle memory' /></v-col>
