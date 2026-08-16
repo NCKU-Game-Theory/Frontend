@@ -1,10 +1,13 @@
 <template>
     <v-snackbar-queue v-model = 'toast' total-visible = 5 />
-    <router-view />
+    <layout>
+        <router-view />
+    </layout>
 </template>
 
 <script lang="ts" setup>
     import { onMounted, provide, ref, type Ref } from 'vue';
+import Layout from './layout.vue';
 
     // Properties for other general modules
     const inited = ref(false);
@@ -91,7 +94,10 @@
             return;
         }
         if(!('ok' in response)) return false;
-        if(!response.ok) return false;
+        if(!response.ok) {
+            if('error' in response) error(response.error);
+            return false;
+        }
 
         return response.data;
     }

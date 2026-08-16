@@ -34,14 +34,37 @@
                 </template>
             </v-dialog>
 
-            <v-container class = 'align-content-center wrapper'>
-                <v-row class = 'animate'>
-                    <v-col cols = 12 md = 4><cartn @click = 'popup.rule = true' title = 'Setup Rules' icon = mdi-ruler :subtitle = 'rule == `` ? `Rule not set` : `Rule set`' /></v-col>
-                    <v-col cols = 12 md = 4><cartn @click = 'popup.model = true' title = 'Select Model' icon = mdi-robot :subtitle = 'model ? model : `No model`' /></v-col>
-                    <v-col cols = 12 md = 4><cartn @click = 'memory = !memory' title = 'Memory' icon = mdi-brain :fixed = 'memory' subtitle = 'Toggle memory' /></v-col>
-                    <v-col cols = 12 :class = 'ok ? undefined : `disabled`'><cartn @click = 'init()' title = 'Start' icon = mdi-send subtitle = 'Start a new session' /></v-col>
-                </v-row>
-            </v-container>
+            <v-row>
+                <v-col cols = 12 md = 3>
+                    <v-row align = center>
+                        <v-col>
+                            <cartn
+                                v-for = 'i, j in reversed_sessions'
+                                :key = j
+        
+                                :title = 'i.title || i.rule'
+                                :subtitle = '`model: ${i.model}, ` + (i.memory ? `with` : `without`) + ` memory`'
+                                :text = '`${i.token} / ${i.rule}`'
+
+                                :fixed = 'pointer == i.token'
+
+                                @click = 'pointer = i.token'
+                            />
+                        </v-col>
+                    </v-row>
+                </v-col>
+                <v-col cols = 12 md = 6 lg = 9 class = 'align-content-center wrapper'>
+                    <v-row class = 'animate'>
+                        <v-col cols = 12 md = 4><cartn @click = 'popup.rule = true' title = 'Setup Rules' icon = mdi-ruler :subtitle = 'rule == `` ? `Rule not set` : `Rule set`' /></v-col>
+                        <v-col cols = 12 md = 4><cartn @click = 'popup.model = true' title = 'Select Model' icon = mdi-robot :subtitle = 'model ? model : `No model`' /></v-col>
+                        <v-col cols = 12 md = 4><cartn @click = 'memory = !memory' title = 'Memory' icon = mdi-brain :fixed = 'memory' subtitle = 'Toggle memory' /></v-col>
+                        <v-col cols = 12 :class = 'ok ? undefined : `disabled`'><cartn @click = 'init()' title = 'Start' icon = mdi-send subtitle = 'Start a new session' /></v-col>
+                    </v-row>
+                    <v-row v-if = pointer>
+                        <chat v-model = pointer />
+                    </v-row>
+                </v-col>
+            </v-row>
 
         </v-main>
     </v-app>
@@ -101,25 +124,30 @@ const blur: Function = (target: string, time: number = 1000) => {
     });
 }
 
-const models: Ref<string[]> = ref(['gemma3:12b', 'gemma3:4b']);
+const models: Ref<string[]> = ref(['gemma3:12b', 'gemma3:4b', 'llama3.2:1b']);
 const model: Ref<string | null> = ref(null);
 const memory: Ref<boolean> = ref(false);
 
 export interface session {
     token: string,
     rule: string,
-    title: string | null
+    title: string | null,
+    model: string,
+    memory: boolean
 }
 
-var sessions: session[] = [];
-sessions = JSON.parse(get('sessions')) || [];
+const reversed_sessions = computed(() => [...sessions.value].reverse());
+var sessions: Ref<session[]> = ref([]);
+sessions.value = JSON.parse(get('sessions')) || [];
 
-const set_rule: Function = (token: string, rule: string, model: string) => {
+const pointer: Ref<string | null> = ref(null);
+
+const set_rule = (token: string, rule: string, model: string, memory: boolean) => {
     info('set rules');
     loading.value = true;
     $.ajax({
         url: url('chat/rule'),
-        timeout: 3000,
+        timeout: 300000,
         method: 'POST',
         data: {
             token: token,
@@ -129,10 +157,10 @@ const set_rule: Function = (token: string, rule: string, model: string) => {
         const res = check(response);
         info(`Got Response from model: ${res.response}`);
 
-        sessions.push({
-            token, rule, title: res.response
+        sessions.value.push({
+            token, rule, title: res.response, model, memory
         })
-        save('sessions', JSON.stringify(sessions));
+        save('sessions', JSON.stringify(sessions.value));
     }).fail((err) => {
         check(err, true);
     }).always(() => {
@@ -145,18 +173,20 @@ const init: Function = () => {
         error('Parameter not set');
         return;
     }
+    loading.value = true;
     $.ajax({
         url: url('token/init'),
-        timeout: 300000,
+        timeout: 3000,
         method: 'GET'
     }).done((response) => {
         const res = check(response);
         if(!res) error(`Failed, error = ${response.error}`);
         info(`Got token ${res}`);
         const token: string = res;
-        set_rule(token, rule.value, model.value);
+        set_rule(token, rule.value, model.value!, memory.value);
     }).fail((err) => {
         check(err, true);
+        loading.value = false;
     })
 }
 
