@@ -39,16 +39,11 @@
                     <v-col cols = 12 md = 4><cartn @click = 'popup.rule = true' title = 'Setup Rules' icon = mdi-ruler :subtitle = 'rule == `` ? `Rule not set` : `Rule set`' /></v-col>
                     <v-col cols = 12 md = 4><cartn @click = 'popup.model = true' title = 'Select Model' icon = mdi-robot :subtitle = 'model ? model : `No model`' /></v-col>
                     <v-col cols = 12 md = 4><cartn @click = 'memory = !memory' title = 'Memory' icon = mdi-brain :fixed = 'memory' subtitle = 'Toggle memory' /></v-col>
-                    <v-col cols = 12><cartn @click = 'init' title = 'Start' icon = mdi-send /></v-col>
+                    <v-col cols = 12 :class = 'ok ? undefined : `disabled`'><cartn @click = 'init()' title = 'Start' icon = mdi-send subtitle = 'Start a new session' /></v-col>
                 </v-row>
 
-                <v-row>
-                    <chat v-model = history />
-                </v-row>
-
-                <v-row :class = 'ok ? undefined : `disabled`' class = animate>
-                    <v-col cols = 12 md = 11><v-text-field v-model = input variant = outlined label = 'Make some conversation...' /></v-col>
-                    <v-col cols = 12 md = 1><v-btn icon = mdi-send @click = submit /></v-col>
+                <v-row v-if = token>
+                    <chat v-model = token />
                 </v-row>
             </v-container>
 
@@ -76,6 +71,9 @@ const info: Function = inject('info')!;
 const save: Function = inject('save')!;
 const get: Function = inject('get')!;
 
+const url: Function = inject('url')!;
+const check: Function = inject('check')!;
+
 const ok = computed(() => ((rule.value != '') && (model.value !== null)));
 
 const popup = ref({
@@ -83,17 +81,9 @@ const popup = ref({
     model: false
 });
 
-const loading: boolean = inject('loading')!;
-const input = ref('');
+const loading: Ref<boolean> = inject('loading')!;
 const rule = ref('');
-
-export interface hs {
-    name: string,
-    time: string | null,
-    text: string
-}
-
-const history: Ref<hs[]> = ref([]);
+const token: Ref<string | null> = ref(null);
 
 onMounted(() => {
     rule.value = get('rule') || '';
@@ -110,37 +100,58 @@ const blur: Function = (target: string, time: number = 1000) => {
     });
 }
 
-const fake: Function = () => {
-    return {
-        text: input.value,
-        name: '123',
-        time: '12321'
-    };
-}
-
-const submit: Function = () => {
-    info('ouob');
-    history.value.push(fake());
-    input.value = '';
-}
-
-const models: Ref<string[]> = ref(['gemma3:12b', 'gemma3:4b']);
+const models: Ref<string[]> = ref(['gemma3:12b', 'gemma3:4b', 'llama3.2:1b']);
 const model: Ref<string | null> = ref(null);
 const memory: Ref<boolean> = ref(false);
+
+const set_rule = (t: string, r: string, m: string, mem: boolean) => {
+    info('set rules');
+    loading.value = true;
+    $.ajax({
+        url: url('chat/rule'),
+        timeout: 300000,
+        method: 'POST',
+        data: {
+            token: t,
+            rule: r,
+            model: m,
+            memory: mem
+        }
+    }).done((response) => {
+        const res = check(response);
+        info(`Got Response from model: ${res.response}`);
+        token.value = t;
+    }).fail((err) => {
+        check(err, true);
+    }).always(() => {
+        loading.value = false;
+    })
+}
+
+const init: Function = () => {
+    if(!ok.value) {
+        error('Parameter not set');
+        return;
+    }
+    loading.value = true;
+    $.ajax({
+        url: url('token/init'),
+        timeout: 3000,
+        method: 'GET'
+    }).done((response) => {
+        const res = check(response);
+        if(!res) error(`Failed, error = ${response.error}`);
+        info(`Got token ${res}`);
+        set_rule(res, rule.value, model.value!, memory.value);
+    }).fail((err) => {
+        check(err, true);
+        loading.value = false;
+    })
+}
 
 </script>
 
 <style>
-/* .blur {
-    position: absolute;
-    width: 100vw;
-    height: 100vh;
-    top: 0px;
-    left: 0px;
-    background-color: rgba(255, 255, 255, .4);
-    backdrop-filter: blur(10px);
-    z-index: -1000;
-} */
 .disabled {
     filter: blur(10px);
 }
