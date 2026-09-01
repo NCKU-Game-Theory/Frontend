@@ -154,7 +154,9 @@ const set_rule = (token: string, rule: string, model: string, memory: boolean) =
         method: 'POST',
         data: {
             token: token,
-            rule: rule
+            rule: rule,
+            model: model,
+            memory: memory
         }
     }).done((response) => {
         const res = check(response);
