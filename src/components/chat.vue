@@ -1,6 +1,18 @@
 <template>
     <v-row>
-        <div id = token class = text-center> Using token: <v-chip> {{ token }} </v-chip> </div>
+        <v-col cols = 12 class = 'd-flex align-center justify-space-between'>
+            <div id = token class = text-left> Using token: <v-chip> {{ token }} </v-chip> </div>
+            <v-btn
+                v-if = token
+                color = primary
+                variant = tonal
+                size = small
+                prepend-icon = mdi-check-all
+                :loading = loading
+                @click = finalize
+                text = 'Finalize'
+            />
+        </v-col>
         <v-divider />
         <v-text-field v-model = input @keydown.enter = 'submit' label = 'Text LLM...' />
         <v-col cols = 12 v-for = 'i, j in reversed_history' :key = j>
@@ -24,6 +36,7 @@ const token = defineModel<string | null>();
 
 const url: Function = inject('url')!;
 const check: Function = inject('check')!;
+const info: Function = inject('info')!;
 
 const loading: Ref<boolean> = inject('loading')!;
 
@@ -92,6 +105,31 @@ const init = () => {
         if(!res) return;
 
         history.value = res as message[];
+    }).fail((err) => {
+        check(err, true);
+    }).always(() => loading.value = false);
+}
+
+const finalize = () => {
+    if(!token.value) return;
+    loading.value = true;
+    $.ajax({
+        url: url('chat/finalize'),
+        timeout: 300000,
+        method: 'POST',
+        data: {
+            token: token.value
+        }
+    }).done((response) => {
+        var res = check(response);
+        if(!res) return;
+        info(`Game finalized! Performance rating: ${res.rate ?? 'N/A'}/10`);
+        if(res.summary) {
+            history.value.push({
+                role: 'system',
+                content: `[Summary]\n${res.summary}\n\n[Rating]: ${res.rate ?? 'N/A'}/10`
+            });
+        }
     }).fail((err) => {
         check(err, true);
     }).always(() => loading.value = false);
