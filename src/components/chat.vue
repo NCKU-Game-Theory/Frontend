@@ -17,7 +17,7 @@
 </template>
 
 <script lang = ts setup>
-import { $ } from 'jquery';
+import $ from 'jquery';
 import { type Ref, computed, inject, onMounted, ref, watch } from 'vue';
 
 const token = defineModel<string | null>();
@@ -47,17 +47,19 @@ const align = (x: 'user' | 'system' | 'assistant') => {
 }
 
 const submit = () => {
+    if(!input.value) return;
     loading.value = true;
+    const msg = input.value;
     history.value.push({
         role: 'user',
-        content: input.value
+        content: msg
     })
     input.value = '';
     $.ajax({
         url: url('chat/ask'),
         method: 'POST',
         data: {
-            message: input.value,
+            message: msg,
             token: token.value
         },
         timeout: 300000
@@ -70,12 +72,13 @@ const submit = () => {
         });
     }).fail((err) => {
         check(err, true);
-        input.value = history.value[history.value.length - 1].content
+        input.value = msg;
         history.value.pop();
     }).always(() => loading.value = false);
 }
 
 const init = () => {
+    if(!token.value) return;
     loading.value = true;
     $.ajax({
         url: url('chat/history'),
@@ -95,7 +98,7 @@ const init = () => {
 }
 
 onMounted(init);
-watch(token, (alt, neu) => init())
+watch(token, () => init())
 </script>
 
 <style>
